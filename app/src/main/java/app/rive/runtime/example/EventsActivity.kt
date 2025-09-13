@@ -1,7 +1,5 @@
 package app.rive.runtime.example
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
@@ -77,17 +75,8 @@ class EventsActivity : AppCompatActivity() {
             override fun notifyEvent(event: RiveEvent) {
                 when (event) {
                     is RiveOpenURLEvent -> {
-                        Log.i("RiveEvent", "Open URL Rive event: ${event.url}")
-                        runOnUiThread {
-                            try {
-                                val uri = Uri.parse(event.url)
-                                val browserIntent =
-                                    Intent(Intent.ACTION_VIEW, uri)
-                                startActivity(browserIntent)
-                            } catch (e: Exception) {
-                                Log.i("RiveEvent", "Not a valid URL ${event.url}")
-                            }
-                        }
+                        // Harden: URL events are not allowed anywhere.
+                        error("RiveOpenURLEvent is disabled in Exodus fork")
                     }
                 }
             }
@@ -100,7 +89,8 @@ class EventsActivity : AppCompatActivity() {
             override fun notifyEvent(event: RiveEvent) {
                 when (event) {
                     is RiveOpenURLEvent -> {
-                        Log.i("RiveEvent", "Open URL Rive event: ${event.url}")
+                        // Harden: never allow URL events (no logging of URL content).
+                        error("RiveOpenURLEvent is disabled in Exodus fork")
                     }
 
                     is RiveGeneralEvent -> {
