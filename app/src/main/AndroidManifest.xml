@@ -54,7 +54,6 @@
         <activity android:name=".SimpleStateMachineActivity" />
         <activity android:name=".NestedInputActivity" />
         <activity android:name=".NestedTextRunActivity" />
-        <activity android:name=".HttpActivity" />
         <activity android:name=".ButtonActivity" />
         <activity android:name=".BlendActivity" />
         <activity
