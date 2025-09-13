@@ -445,18 +445,8 @@ open class RiveAnimationView(context: Context, attrs: AttributeSet? = null) :
     }
 
     private fun loadFromNetwork(url: String, onComplete: (File) -> Unit) {
-        val queue = Volley.newRequestQueue(context.applicationContext)
-        val stringRequest = RiveFileRequest(
-            url,
-            rendererAttributes.rendererType,
-            {
-                onComplete(it)
-                it.release()
-            },
-            { throw IOException("Unable to download Rive file $url") },
-            assetLoader = rendererAttributes.assetLoader
-        )
-        queue.add(stringRequest)
+        // Exodus hardening: remote .riv loading is not allowed.
+        error("Remote Rive file loading is disabled in the Exodus fork")
     }
 
     /** Pauses all playing [animation instances][LinearAnimationInstance]. */
@@ -1126,21 +1116,19 @@ class RiveFileRequest(
     errorListener: Response.ErrorListener,
     private val assetLoader: FileAssetLoader? = null,
 ) : Request<File>(Method.GET, url, errorListener) {
+    init {
+        // Exodus hardening: should never be constructed.
+        error("RiveFileRequest is disabled in the Exodus fork")
+    }
 
-    override fun deliverResponse(response: File) = listener.onResponse(response)
+    override fun deliverResponse(response: File) {
+        // Unreachable by design; keep a guard here just in case.
+        error("RiveFileRequest.deliverResponse should never be called")
+    }
 
     override fun parseNetworkResponse(response: NetworkResponse?): Response<File> {
-        return try {
-            val bytes = response?.data ?: ByteArray(0)
-            val file = File(
-                bytes = bytes,
-                rendererType = rendererType,
-                fileAssetLoader = assetLoader,
-            )
-            Response.success(file, HttpHeaderParser.parseCacheHeaders(response))
-        } catch (e: UnsupportedEncodingException) {
-            Response.error(ParseError(e))
-        }
+        // Unreachable by design.
+        return Response.error(ParseError(Exception("Remote Rive loading disabled")))
     }
 }
 
