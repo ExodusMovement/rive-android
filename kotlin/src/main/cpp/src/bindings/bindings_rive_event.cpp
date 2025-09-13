@@ -11,6 +11,16 @@
 #include "rive/custom_property_string.hpp"
 #include "rive/custom_property_number.hpp"
 #include <jni.h>
+#include <cassert>
+
+// Assert in debug/dev builds, silent in release.
+#ifndef RIVE_EXODUS_HARDEN_ASSERT
+#  ifndef NDEBUG
+#    define RIVE_EXODUS_HARDEN_ASSERT(MSG) assert(!"Rive URL events disabled: " MSG)
+#  else
+#    define RIVE_EXODUS_HARDEN_ASSERT(MSG) ((void)0)
+#  endif
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -130,12 +140,8 @@ extern "C"
                                                               jobject thisObj,
                                                               jlong ref)
     {
-        rive::Event* event = reinterpret_cast<rive::Event*>(ref);
-        if (event->is<rive::OpenUrlEvent>())
-        {
-            auto urlEvent = event->as<rive::OpenUrlEvent>();
-            return env->NewStringUTF(urlEvent->url().c_str());
-        }
+        // Dev: assert; Release: strip
+        RIVE_EXODUS_HARDEN_ASSERT("cppURL");
         return env->NewStringUTF("");
     }
 
@@ -145,18 +151,8 @@ extern "C"
         jobject thisObj,
         jlong ref)
     {
-        rive::Event* event = reinterpret_cast<rive::Event*>(ref);
-        if (event->is<rive::OpenUrlEvent>())
-        {
-            auto urlEvent = event->as<rive::OpenUrlEvent>();
-            const char* target = GetTargetValue(urlEvent);
-
-            if (target != nullptr)
-            {
-                return env->NewStringUTF(target);
-            }
-        }
-
+        // Dev: assert; Release: benign default
+        RIVE_EXODUS_HARDEN_ASSERT("cppTarget");
         return env->NewStringUTF("_blank");
     }
 
@@ -217,8 +213,8 @@ extern "C"
 
         if (event->is<rive::OpenUrlEvent>())
         {
-            auto urlEvent = event->as<rive::OpenUrlEvent>();
-            auto url = urlEvent->url().c_str();
+            // Dev: assert; Release: don’t expose url/target
+            RIVE_EXODUS_HARDEN_ASSERT("cppData(OpenUrlEvent)");
             jobject type = env->NewObject(GetShortClass(),
                                           GetShortConstructor(),
                                           event->coreType());
@@ -227,21 +223,6 @@ extern "C"
                                                   putMethod,
                                                   env->NewStringUTF("type"),
                                                   type);
-            JNIExceptionHandler::CallObjectMethod(env,
-                                                  eventObject,
-                                                  putMethod,
-                                                  env->NewStringUTF("url"),
-                                                  env->NewStringUTF(url));
-            const char* target = GetTargetValue(urlEvent);
-            if (target != nullptr)
-            {
-                JNIExceptionHandler::CallObjectMethod(
-                    env,
-                    eventObject,
-                    putMethod,
-                    env->NewStringUTF("target"),
-                    env->NewStringUTF(target));
-            }
         }
 
         JNIExceptionHandler::CallObjectMethod(env,
