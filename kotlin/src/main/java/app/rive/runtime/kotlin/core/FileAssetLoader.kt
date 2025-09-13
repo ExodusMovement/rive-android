@@ -53,8 +53,11 @@ class FallbackAssetLoader(
 
     init {
         loader?.let { appendLoader(it) }
-        if (loadCDNAssets) {
-            appendLoader(CDNAssetLoader(context.applicationContext))
+        // Exodus hardening:
+        // Never append CDN loader. If someone tries to pass loadCDNAssets=true,
+        // fail fast in debug builds to avoid accidental enablement.
+        check(!loadCDNAssets) {
+            "Remote/CDN asset loading is disabled in the Exodus fork"
         }
     }
 
@@ -74,15 +77,16 @@ class FallbackAssetLoader(
         loaders.any { it.loadContents(asset, inBandBytes) }
 
     private fun resetCDNLoader(needsCDNLoader: Boolean, context: Context) {
-        // Make sure CDN Loader is set.
+        // Exodus hardening: ensure CDN loader is never present, and assert if requested.
         val cdnLoaderIndex = loaders.indexOfFirst { it is CDNAssetLoader }
-        if (cdnLoaderIndex == -1 && needsCDNLoader) {
-            appendLoader(CDNAssetLoader(context.applicationContext))
-        } else if (cdnLoaderIndex >= 0 && !needsCDNLoader) {
+        if (cdnLoaderIndex >= 0) {
             loaders.removeAt(cdnLoaderIndex).let {
                 dependencies.remove(it)
                 it.release()
             }
+        }
+        check(!needsCDNLoader) {
+            "Remote/CDN asset loading is disabled in the Exodus fork"
         }
     }
 
@@ -100,26 +104,17 @@ class FallbackAssetLoader(
     }
 }
 
+@Deprecated("Disabled in Exodus fork: remote/CDN asset loading is not allowed")
 open class CDNAssetLoader(context: Context) : FileAssetLoader() {
     private val tag = javaClass.simpleName
 
     private val queue by lazy { Volley.newRequestQueue(context) }
 
     override fun loadContents(asset: FileAsset, inBandBytes: ByteArray): Boolean {
-        val url = asset.cdnUrl
-        if (url.isEmpty()) return false
-
-        val request = BytesRequest(
-            url,
-            { bytes -> asset.decode(bytes) },
-            {
-                Log.e(tag, "onAssetLoaded: loading image failed.")
-                it.printStackTrace()
-            }
-        )
-
-        queue.add(request)
-        return true // This loader handled the asset.
+        // Exodus hardening: hard-fail any attempt to fetch remote resources.
+        error("Remote/CDN asset loading is disabled in the Exodus fork")
+        @Suppress("UNREACHABLE_CODE")
+        return false
     }
 }
 
@@ -128,13 +123,19 @@ class BytesRequest(
     private val onResponse: (bytes: ByteArray) -> Unit,
     errorListener: Response.ErrorListener,
 ) : Request<ByteArray>(Method.GET, url, errorListener) {
-    override fun deliverResponse(response: ByteArray) = onResponse(response)
+    init {
+        // Exodus hardening: remote HTTP(S) requests must never be created.
+        error("BytesRequest (remote fetch) is disabled in the Exodus fork")
+    }
 
-    override fun parseNetworkResponse(response: NetworkResponse?): Response<ByteArray> =
-        try {
-            val bytes = response?.data ?: ByteArray(0)
-            Response.success(bytes, HttpHeaderParser.parseCacheHeaders(response))
-        } catch (e: Exception) {
-            Response.error(ParseError(e))
-        }
+    override fun deliverResponse(response: ByteArray) {
+        // This should never run
+        check(false) { "BytesRequest.deliverResponse invoked unexpectedly" }
+    }
+
+    override fun parseNetworkResponse(response: NetworkResponse?): Response<ByteArray> {
+        // This should never run
+        check(false) { "BytesRequest.parseNetworkResponse invoked unexpectedly" }
+        return Response.error(ParseError(Exception("Disabled")))
+    }
 }
