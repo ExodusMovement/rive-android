@@ -81,7 +81,7 @@ open class RiveAnimationView(context: Context, attrs: AttributeSet? = null) :
         val fitIndexDefault = Fit.CONTAIN.ordinal
         val loopIndexDefault = Loop.AUTO.ordinal
         const val traceAnimationsDefault = false
-        const val shouldLoadCDNAssetsDefault = true
+        const val shouldLoadCDNAssetsDefault = false
         val rendererIndexDefault = Rive.defaultRendererType.value
     }
 

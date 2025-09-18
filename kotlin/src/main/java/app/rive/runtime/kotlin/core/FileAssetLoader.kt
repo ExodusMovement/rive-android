@@ -45,7 +45,7 @@ abstract class ContextAssetLoader(protected val context: Context) : FileAssetLoa
 
 class FallbackAssetLoader(
     context: Context,
-    loadCDNAssets: Boolean = true,
+    loadCDNAssets: Boolean = false,
     loader: FileAssetLoader? = null,
 ) : FileAssetLoader() {
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
