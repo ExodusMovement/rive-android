@@ -2,6 +2,53 @@
 [![Discord Badge](https://img.shields.io/discord/532365473602600965)](https://discord.gg/dpRpR7jH)
 [![Twitter Handle](https://img.shields.io/twitter/follow/rive_app.svg?style=social&label=Follow)](https://x.com/rive_app)
 
+# Exodus Rive Android Fork
+
+This fork of [rive-android](https://github.com/rive-app/rive-android) contains hardened changes for use in **Exodus Mobile**.  
+Remote/CDN asset loading and network fetches are disabled to ensure animations only load from bundled resources.
+
+---
+
+## ⚙️ Hardened Runtime
+
+-  ❌ No remote/CDN `.riv` file loading
+-  ✅ Only local `.riv` resources bundled inside the app are supported
+
+---
+
+## 🚀 Release Flow
+
+We ship the hardened Android Kotlin runtime as an `.aar` and distribute it via **npm** inside [`@exodus/rive-android-runtime`](https://github.com/ExodusMovement/rive-android/tree/exodus-10.4.2/exodus-rive-android-runtime).
+
+### 1. Run the release script
+
+```sh
+./release-android-runtime.sh
+```
+
+This will:
+
+1. Update submodules
+
+```sh
+git submodule update --remote -- submodules/rive-runtime
+```
+
+2. Clean & build the runtime with Gradle:
+
+```gradle
+./gradlew clean
+./gradlew :kotlin:assembleRelease
+```
+
+3. Copy the generated .aar into
+   @exodus/rive-android-runtime/android/libs/rive-android-runtime.aar
+
+4. Increment the version (based on the root VERSION file)
+   → from e.g. 10.4.2-exodus.0 → 10.4.2-exodus.1
+
+5. Publish the npm package @exodus/rive-android-runtime.
+
 # Rive Android
 
 [![Rive hero image](https://cdn.rive.app/rive_logo_dark_bg.png)](https://rive.app)
@@ -12,13 +59,13 @@ This library is distributed through [Maven](https://central.sonatype.com/artifac
 
 ## Table of Contents
 
-- ⭐️ [Rive Overview](#rive-overview)
-- 🚀 [Getting Started & API docs](#getting-started)
-- 🔍 [Supported Versions](#supported-versions)
-- 📚 [Examples](#examples)
-- 👨‍💻 [Contributing](#contributing)
-- ❓ [Filing Issues](#issues)
-- 🧰 [Troubleshooting](#troubleshooting)
+-  ⭐️ [Rive Overview](#rive-overview)
+-  🚀 [Getting Started & API docs](#getting-started)
+-  🔍 [Supported Versions](#supported-versions)
+-  📚 [Examples](#examples)
+-  👨‍💻 [Contributing](#contributing)
+-  ❓ [Filing Issues](#issues)
+-  🧰 [Troubleshooting](#troubleshooting)
 
 ## Rive Overview
 
@@ -32,11 +79,11 @@ To get started with Rive Android, check the [Android section](https://rive.app/d
 
 For more information, see the [Runtime](https://rive.app/docs/runtimes/getting-started) sections, such as:
 
-- [Artboards](https://rive.app/docs/runtimes/artboards)
-- [Layout](https://rive.app/docs/runtimes/layout)
-- [State Machines](https://rive.app/docs/runtimes/state-machines)
-- [Data Binding](https://rive.app/docs/runtimes/data-binding)
-- [Loading Assets](https://rive.app/docs/runtimes/loading-assets)
+-  [Artboards](https://rive.app/docs/runtimes/artboards)
+-  [Layout](https://rive.app/docs/runtimes/layout)
+-  [State Machines](https://rive.app/docs/runtimes/state-machines)
+-  [Data Binding](https://rive.app/docs/runtimes/data-binding)
+-  [Loading Assets](https://rive.app/docs/runtimes/loading-assets)
 
 ## Supported Versions
 
@@ -82,13 +129,13 @@ The `preview` build variant makes use of the hosted Rive dependency. If you're l
 
 The example showcases a number of ways to manipulate Rive files, including:
 
-- How to include Rive files in a project and reference them
-- Setting layout and loop mode options
-- Displaying single or multiple artboards in one component
-- Setting up and manipulating a state machine via inputs
-- Handling events
-- Using a low-level API to build a render loop for more control over scenes
-- ... and more!
+-  How to include Rive files in a project and reference them
+-  Setting layout and loop mode options
+-  Displaying single or multiple artboards in one component
+-  Setting up and manipulating a state machine via inputs
+-  Handling events
+-  Using a low-level API to build a render loop for more control over scenes
+-  ... and more!
 
 ### Community Examples
 
