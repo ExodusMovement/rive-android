@@ -93,3 +93,9 @@ dependencies {
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.14"
 }
+
+// Reproducible APK/archives from the sample app build
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}

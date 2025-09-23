@@ -43,3 +43,9 @@ dependencies {
     implementation "androidx.compose.foundation:foundation:1.5.3"
     implementation "androidx.compose.material3:material3:1.1.2"
 }
+
+// Reproducible AAR/ZIP
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}

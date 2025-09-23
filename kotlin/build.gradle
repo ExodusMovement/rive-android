@@ -34,6 +34,7 @@ android {
             cmake {
                 // Used during PR matrix builds to build each architecture as a separate job
                 // Also useful for local testing
+                arguments "-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY"
                 if (project.hasProperty("abiFilters")) {
                     // Take a comma-separated string from the project property,
                     // split it into a list, and trim whitespace from each item
@@ -58,7 +59,7 @@ android {
                         "-DANDROID_ARM_MODE=${asanEnabled ? 'arm' : 'thumb'}",
                         // Enable ASAN if requested
                         "-DENABLE_ASAN=${asanEnabled ? 'ON' : 'OFF'}"
-            }
+                }
         }
     }
 
@@ -87,6 +88,12 @@ android {
             }
         }
     }
+}
+
+// Make archives (AARs/ZIPs) reproducible across machines
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
 }
 
 dependencies {

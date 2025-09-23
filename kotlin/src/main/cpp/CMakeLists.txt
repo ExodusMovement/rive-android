@@ -110,6 +110,38 @@ else ()
     message(FATAL_ERROR "Unsupported ABI: ${CMAKE_ANDROID_ARCH_ABI}")
 endif ()
 
+# --- Deterministic build knobs (added) ----------------------------------------
+# Map away absolute source/build paths to make DWARF identical across machines.
+add_compile_options(
+  -ffile-prefix-map=${CMAKE_SOURCE_DIR}=.
+  -ffile-prefix-map=${CMAKE_BINARY_DIR}=.
+  -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=.
+  -fdebug-prefix-map=${CMAKE_BINARY_DIR}=.
+  -fmacro-prefix-map=${CMAKE_SOURCE_DIR}=.
+  -fmacro-prefix-map=${CMAKE_BINARY_DIR}=.
+  -Wno-builtin-macro-redefined
+)
+
+# Freeze volatile builtin macros to fixed values.
+add_compile_definitions(
+  __DATE__="Jan 01 1970"
+  __TIME__="00:00:00"
+)
+
+add_compile_definitions(__TIMESTAMP__="Thu Jan  1 00:00:00 1970")
+
+# Strip debug info in Release so DWARF differences can't influence the build-id.
+string(APPEND CMAKE_C_FLAGS_RELEASE   " -g0")
+string(APPEND CMAKE_CXX_FLAGS_RELEASE " -g0")
+
+# Make the linker produce a stable, content-based build-id (Android/lld only).
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+  add_link_options(-Wl,--build-id=sha1)
+endif()
+
+# -----------------------------------------------------------------------------
+# Promote our ${ANDROID_NDK} to an environment var so premake uses the same one.
+set(ENV{ANDROID_NDK} "${ANDROID_NDK}")
 # Promote our ${ANDROID_NDK} to an environment var so premake uses the same one.
 set(ENV{ANDROID_NDK} "${ANDROID_NDK}")
 
