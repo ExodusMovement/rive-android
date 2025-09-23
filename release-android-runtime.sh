@@ -61,31 +61,35 @@ cp -f "$OUTPUT_AAR" "$DEST_AAR"
 
 echo "✅ Done! Replaced with fresh build: $DEST_AAR"
 
-# 4. Handle version bump
-BASE_VERSION=$(cat "$PROJECT_ROOT/VERSION")   # e.g. 10.4.2
-PKG_JSON="$NPM_PACKAGE_DIR/package.json"
-CURRENT_VERSION=$(node -p "require('$PKG_JSON').version")
+# 3.5. Print SHA256 hash
+echo "🔑 SHA256 of built AAR:"
+shasum -a 256 "$DEST_AAR"
 
-if [[ "$CURRENT_VERSION" =~ ^${BASE_VERSION}-exodus\.([0-9]+)$ ]]; then
-  SUFFIX=${BASH_REMATCH[1]}
-  NEXT_SUFFIX=$((SUFFIX + 1))
-else
-  NEXT_SUFFIX=0
-fi
-
-NEW_VERSION="${BASE_VERSION}-exodus.${NEXT_SUFFIX}"
-
-echo "🔢 Current npm version: $CURRENT_VERSION"
-echo "➡️  Next npm version: $NEW_VERSION"
-
-npm version --no-git-tag-version "$NEW_VERSION" --prefix "$NPM_PACKAGE_DIR"
-
-# 5. Publish npm package
+# 4. Handle version bump only if publishing
 if [ "$DO_PUBLISH" = true ]; then
+  BASE_VERSION=$(cat "$PROJECT_ROOT/VERSION")   # e.g. 10.4.2
+  PKG_JSON="$NPM_PACKAGE_DIR/package.json"
+  CURRENT_VERSION=$(node -p "require('$PKG_JSON').version")
+
+  if [[ "$CURRENT_VERSION" =~ ^${BASE_VERSION}-exodus\.([0-9]+)$ ]]; then
+    SUFFIX=${BASH_REMATCH[1]}
+    NEXT_SUFFIX=$((SUFFIX + 1))
+  else
+    NEXT_SUFFIX=0
+  fi
+
+  NEW_VERSION="${BASE_VERSION}-exodus.${NEXT_SUFFIX}"
+
+  echo "🔢 Current npm version: $CURRENT_VERSION"
+  echo "➡️  Next npm version: $NEW_VERSION"
+
+  npm version --no-git-tag-version "$NEW_VERSION" --prefix "$NPM_PACKAGE_DIR"
+
+  # 5. Publish npm package
   echo "🎉 Publishing npm package..."
   cd "$NPM_PACKAGE_DIR"
   npm publish --access public
   echo "✅ Published @exodus/rive-android-runtime@$NEW_VERSION"
 else
-  echo "⚡ Skipping npm publish"
+  echo "⚡ Skipping npm publish and package.json version bump"
 fi
