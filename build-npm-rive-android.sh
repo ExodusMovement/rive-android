@@ -89,6 +89,12 @@ if [ "$DO_PUBLISH" = true ]; then
   cd "$NPM_PACKAGE_DIR"
   npm publish --access public
   echo "✅ Published @exodus/rive-android-runtime@$NEW_VERSION"
+
+  # cleanup after publish
+  echo "🗑️  Cleaning up built AAR..."
+  rm -f "$DEST_AAR"
+  rm -rf "$PROJECT_ROOT/$MODULE/build/outputs/aar"
+  echo "✅ Cleanup complete"
 else
   echo "⚡ Skipping npm publish and package.json version bump"
 fi
