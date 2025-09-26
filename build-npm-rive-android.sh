@@ -71,14 +71,13 @@ if [ "$DO_PUBLISH" = true ]; then
   PKG_JSON="$NPM_PACKAGE_DIR/package.json"
   CURRENT_VERSION=$(node -p "require('$PKG_JSON').version")
 
-  if [[ "$CURRENT_VERSION" =~ ^${BASE_VERSION}-exodus\.([0-9]+)$ ]]; then
-    SUFFIX=${BASH_REMATCH[1]}
-    NEXT_SUFFIX=$((SUFFIX + 1))
+  if [ "$CURRENT_VERSION" == "$BASE_VERSION" ]; then
+    IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+    patch=$((patch + 1))
+    NEW_VERSION="$major.$minor.$patch"
   else
-    NEXT_SUFFIX=0
+    NEW_VERSION="$BASE_VERSION"
   fi
-
-  NEW_VERSION="${BASE_VERSION}-exodus.${NEXT_SUFFIX}"
 
   echo "🔢 Current npm version: $CURRENT_VERSION"
   echo "➡️  Next npm version: $NEW_VERSION"

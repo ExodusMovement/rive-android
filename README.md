@@ -23,7 +23,7 @@ We ship the hardened Android Kotlin runtime as an `.aar` and distribute it via *
 ### 1. Run the release script
 
 ```sh
-./release-android-runtime.sh
+./build-npm-rive-android.sh
 ```
 
 This will:
@@ -45,7 +45,7 @@ git submodule update --remote -- submodules/rive-runtime
    @exodus/rive-android-runtime/android/libs/rive-android-runtime.aar
 
 4. Increment the version (based on the root VERSION file)
-   → from e.g. 10.4.2-exodus.0 → 10.4.2-exodus.1
+   → from e.g. 10.4.2 → 10.4.3
 
 5. Publish the npm package @exodus/rive-android-runtime.
 
