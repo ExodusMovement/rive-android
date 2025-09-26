@@ -1,6 +1,6 @@
 {
    "name": "@exodus/rive-android-runtime",
-   "version": "10.4.2",
+   "version": "10.4.3",
    "description": "Exodus hardened rive-android runtime packaged for npm",
    "main": "index.js",
    "files": [
